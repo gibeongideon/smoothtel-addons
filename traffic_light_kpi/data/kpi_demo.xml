@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Demo KPI Definitions
+        These are linked to job position names at install time.
+        Ensure hr.job records exist with matching names, or create them.
+    -->
+
+    <!-- ==================== SALES ADMIN ==================== -->
+    <record id="kpi_sales_lead_generation" model="kpi.definition">
+        <field name="name">Lead Generation</field>
+        <field name="target_value">20</field>
+        <field name="period">monthly</field>
+        <field name="measure_type">count</field>
+        <field name="data_source">crm_lead</field>
+        <field name="description">Number of new CRM leads created this month</field>
+    </record>
+
+    <record id="kpi_sales_follow_up_calls" model="kpi.definition">
+        <field name="name">Follow-Up Activities</field>
+        <field name="target_value">50</field>
+        <field name="period">monthly</field>
+        <field name="measure_type">count</field>
+        <field name="data_source">crm_activity</field>
+        <field name="description">Number of CRM activities (calls/meetings) completed</field>
+    </record>
+
+    <record id="kpi_sales_conversion_rate" model="kpi.definition">
+        <field name="name">Lead to Order Conversion Rate</field>
+        <field name="target_value">30</field>
+        <field name="period">monthly</field>
+        <field name="measure_type">percentage</field>
+        <field name="data_source">sale_conversion</field>
+        <field name="description">% of leads converted to confirmed sales orders</field>
+    </record>
+
+    <record id="kpi_sales_revenue" model="kpi.definition">
+        <field name="name">Monthly Sales Revenue</field>
+        <field name="target_value">250000</field>
+        <field name="period">monthly</field>
+        <field name="measure_type">amount</field>
+        <field name="data_source">sale_revenue</field>
+        <field name="description">Total confirmed sales order revenue (KES)</field>
+    </record>
+
+    <record id="kpi_sales_daily_calls" model="kpi.definition">
+        <field name="name">Daily Follow-Up Calls</field>
+        <field name="target_value">5</field>
+        <field name="period">daily</field>
+        <field name="measure_type">count</field>
+        <field name="data_source">crm_activity</field>
+        <field name="description">Number of follow-up activities logged today</field>
+    </record>
+
+    <!-- ==================== PROCUREMENT OFFICER ==================== -->
+    <record id="kpi_procurement_po_count" model="kpi.definition">
+        <field name="name">Purchase Orders Processed</field>
+        <field name="target_value">15</field>
+        <field name="period">monthly</field>
+        <field name="measure_type">count</field>
+        <field name="data_source">purchase_order</field>
+        <field name="description">Number of purchase orders confirmed this month</field>
+    </record>
+
+    <record id="kpi_procurement_po_amount" model="kpi.definition">
+        <field name="name">Procurement Spend</field>
+        <field name="target_value">500000</field>
+        <field name="period">monthly</field>
+        <field name="measure_type">amount</field>
+        <field name="data_source">purchase_amount</field>
+        <field name="description">Total value of confirmed purchase orders (KES)</field>
+    </record>
+
+    <record id="kpi_procurement_weekly_pos" model="kpi.definition">
+        <field name="name">Weekly POs</field>
+        <field name="target_value">4</field>
+        <field name="period">weekly</field>
+        <field name="measure_type">count</field>
+        <field name="data_source">purchase_order</field>
+        <field name="description">Purchase orders processed this week</field>
+    </record>
+
+    <!-- ==================== CUSTOMER SERVICE ==================== -->
+    <record id="kpi_cs_weekly_leads" model="kpi.definition">
+        <field name="name">Customer Enquiries Logged</field>
+        <field name="target_value">30</field>
+        <field name="period">weekly</field>
+        <field name="measure_type">count</field>
+        <field name="data_source">crm_lead</field>
+        <field name="description">CRM leads/enquiries logged this week</field>
+    </record>
+
+</odoo>

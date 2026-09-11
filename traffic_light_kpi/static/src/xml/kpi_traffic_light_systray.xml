@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="traffic_light_kpi.KpiTrafficLightSystray">
+        <div class="o_kpi_traffic_light_systray" t-on-click="openDashboard"
+             title="My KPI Status – Click for Details">
+
+            <!-- Traffic light housing -->
+            <div class="kpi-tl-housing">
+                <div t-att-class="'kpi-tl-dot kpi-tl-' + state.status"
+                     t-att-title="statusLabel">
+                    <!-- Inner glow ring for blink effect -->
+                    <span class="kpi-tl-inner"/>
+                </div>
+            </div>
+
+            <!-- Score label (optional, shown on hover via CSS) -->
+            <span class="kpi-tl-score" t-if="state.overall_percentage">
+                <t t-esc="Math.round(state.overall_percentage)"/>%
+            </span>
+        </div>
+    </t>
+
+    <!-- KPI Dashboard Panel (popup) -->
+    <t t-name="traffic_light_kpi.KpiDashboardPanel">
+        <div class="kpi-dashboard-panel">
+            <div class="kpi-panel-header">
+                <div t-att-class="'kpi-tl-dot-sm kpi-tl-' + props.overall_status"/>
+                <div class="kpi-panel-title">
+                    <strong>My KPI Performance</strong>
+                    <span class="kpi-panel-score">
+                        Overall: <t t-esc="Math.round(props.overall_percentage)"/>%
+                    </span>
+                </div>
+            </div>
+
+            <div class="kpi-panel-body" t-if="props.kpis and props.kpis.length">
+                <table class="kpi-table">
+                    <thead>
+                        <tr>
+                            <th>KPI</th>
+                            <th>Target</th>
+                            <th>Actual</th>
+                            <th>%</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="props.kpis" t-as="kpi" t-key="kpi.id">
+                            <tr t-att-class="'kpi-row kpi-row-' + kpi.status">
+                                <td class="kpi-name">
+                                    <t t-esc="kpi.name"/>
+                                    <small class="kpi-period">(<t t-esc="kpi.period"/>)</small>
+                                </td>
+                                <td class="kpi-target"><t t-esc="kpi.target"/></td>
+                                <td class="kpi-actual"><t t-esc="kpi.actual"/></td>
+                                <td class="kpi-pct">
+                                    <div class="kpi-progress-bar-wrap">
+                                        <div t-att-class="'kpi-progress-bar kpi-tl-' + kpi.status"
+                                             t-att-style="'width:' + Math.min(kpi.percentage, 100) + '%'"/>
+                                    </div>
+                                    <span><t t-esc="Math.round(kpi.percentage)"/>%</span>
+                                </td>
+                                <td>
+                                    <span t-att-class="'kpi-badge kpi-badge-' + kpi.status">
+                                        <t t-esc="kpi.status.charAt(0).toUpperCase() + kpi.status.slice(1)"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr class="kpi-insight-row" t-if="kpi.insight">
+                                <td colspan="5" class="kpi-insight">
+                                    <i class="fa fa-lightbulb-o"/> <t t-esc="kpi.insight"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="kpi-panel-empty" t-else="">
+                <i class="fa fa-info-circle"/> No KPIs assigned to your role yet.
+            </div>
+
+            <div class="kpi-panel-footer">
+                <small class="text-muted">
+                    Last updated: <t t-esc="props.last_updated || 'Never'"/>
+                </small>
+                <button class="btn btn-sm btn-primary" t-on-click="props.onOpenFullDashboard">
+                    Full Dashboard
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>

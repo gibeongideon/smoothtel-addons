@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="so_approval_view" model="ir.ui.view">
+            <field name="name">so.approval.view</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+
+                <!-- ==========================================================
+                     Custom buttons after the Confirm button
+                     ========================================================== -->
+
+                     <xpath expr="//button[@name='action_confirm']" position="after">
+<button name="button_manager"
+        string="Submit"
+        type="object"
+        class="oe_highlight"
+        groups="sales_team.group_sale_salesman"
+        invisible="state != 'draft'"/>
+
+<button name="button_approve"
+        string="Approve"
+        type="object"
+        class="oe_highlight"
+        groups="sales_team.group_sale_manager"
+        invisible="state != 'waiting'"/>
+
+<button name="button_reject"
+        string="Reject"
+        type="object"
+        class="oe_highlight"
+        groups="sales_team.group_sale_manager"
+        invisible="state != 'waiting'"/>
+
+
+    <field name="button_visibility" invisible="1"/>
+</xpath>
+
+            </field>
+        </record>
+
+        <!-- ==========================================================
+             Action: Waiting Approvals
+             ========================================================== -->
+        <record id="action_approval_quotations" model="ir.actions.act_window">
+            <field name="name">Waiting Approvals</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', '=', 'waiting')]</field>
+        </record>
+
+    </data>
+</odoo>

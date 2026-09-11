@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="register_file_view_form" model="ir.ui.view">
+            <field name="name">register.file.form</field>
+            <field name="model">register.file</field>
+            <field name="priority" eval="8" />
+            <field name="arch" type="xml">
+                <form string="Register File">
+                    <header>
+                        <field name="state" widget="statusbar"
+                                statusbar_colors='{"done":"green","cancelled":"red"}'/>  
+
+                        <button name="action_create_shipping_file" type="object" string="To Shipping" class="btn-primary" invisible="state != 'draft'"/>
+                        <!-- <button name="action_awaiting_shipping" type="object" string="To Shipping" class="btn-primary"/> -->
+                        
+                        <!-- <button name="action_ready_do" type="object" string="Ready for DO" class="btn-primary" />
+                        <button name="action_pending_port_ops" type="object" string="To Port Ops" class="btn-primary" />
+                        <button name="action_loading" type="object" string="Start Loading" class="btn-primary" />
+                        <button name="action_return_progress" type="object" string="Return In Progress" class="btn-primary" />
+                        <button name="action_container_dropped" type="object" string="Container Dropped" class="btn-primary" />
+                        <button name="action_validation" type="object" string="Validate" class="btn-success" />
+                        <button name="action_done" type="object" string="Mark as Done" class="btn-success" /> -->
+
+                        <!-- Utility Buttons -->
+                        <!-- <button name="action_hold" type="object" string="Hold" class="btn-secondary" /> -->
+                        <button name="action_cancel" type="object" string="Cancel" class="btn-danger" />
+                                            
+                    </header>
+                    <sheet>
+                    <div name="button_box" position="inside">
+                        <button class="oe_stat_button" 
+                                name="action_open_shipping_file"
+                                type="object" 
+                                icon="fa-ship"
+                                modifiers="{'invisible': [('shipping_file_id', '!=', False)]}">
+                                <field name="shipping_file_id" widget="statinfo">Shipping File</field>
+                               
+                        </button>
+                        
+                    </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group string="Registration Details">
+                            <group>
+                                <field name="bl_number"/>
+                                <field name="consignee_name"/>
+                                <field name="container_number"/>
+                            </group>
+                            <group>
+                                <field name="commodity_name"/>
+                                <field name="final_destination"/>
+                            </group>
+                        </group>
+
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="register_file_view_list" model="ir.ui.view">
+            <field name="name">register.file.list</field>
+            <field name="model">register.file</field>
+            <field name="arch" type="xml">
+                <list string="Register File">
+                    <field name="name"/>
+                    <field name="bl_number"/>
+                    <!-- <field name="consignee_name"/> -->
+                    <field name="container_number"/>
+                    <field name="final_destination"/>
+                </list>
+            </field>
+        </record>
+
+</odoo>

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+logistics.access_register_file,access_register_file,logistics.model_register_file,base.group_user,1,1,1,1
+logistics.access_shipping_file,access_shipping_file,logistics.model_shipping_file,base.group_user,1,1,1,1
+logistics.access_finance_charges,access_finance_charges,logistics.model_finance_charges,base.group_user,1,1,1,1
+logistics.access_finance_charges_line,access_finance_charges_line,logistics.model_finance_charges_line,base.group_user,1,1,1,1
+
+

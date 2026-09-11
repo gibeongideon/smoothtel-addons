@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Multi - Company Rules -->
+        <record id="company_document_access_rule" model="ir.rule">
+            <field name="name">Company Document Details Access Rule</field>
+            <field name="model_id" ref="tk_company_documents.model_company_document_details"/>
+            <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+        </record>
+    </data>
+</odoo>

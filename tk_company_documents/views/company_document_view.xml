@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!--        Views-->
+        <record id="company_documents_details_view_form" model="ir.ui.view">
+            <field name="name">company.documents.details.view.form</field>
+            <field name="model">company.document.details</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_document_confirm" string="Confirm" type="object"
+                                invisible="state=='confirm' or state=='expire'"
+                                class="btn btn-primary"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="sequence" class="mb-3 mt-3" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Document Details">
+                                <field name="name" readonly="state=='confirm' or state=='expire'" required="1"/>
+                                <field name="document_type_id" readonly="state=='confirm' or state=='expire'"/>
+                                <field name="document" filename="document_name"
+                                       readonly="state=='confirm' or state=='expire'"
+                                       widget="binary" required="1"/>
+                                <field name="document_name" invisible="1"/>
+                            </group>
+                            <group string="Other">
+                                <field name="responsible_user_id" readonly="1"/>
+                                <field name="company_id" readonly="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Create By" invisible="not create_uid">
+                                <field name="create_uid" readonly="1"/>
+                                <field name="create_date" readonly="1"/>
+                            </group>
+                            <group string="Validity Period">
+                                <field name="issue_date" readonly="state=='confirm' or state=='expire'" required="1"/>
+                                <field name="expiry_date" readonly="state=='confirm' or state=='expire'" required="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Note">
+                                <field name="note" readonly="state=='confirm' or state=='expire'"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <!--                    Chatter-->
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+        <record id="company_documents_details_view_list" model="ir.ui.view">
+            <field name="name">company.documents.details.view.list</field>
+            <field name="model">company.document.details</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="document_name"/>
+                    <field name="document_type_id"/>
+                    <field name="issue_date"/>
+                    <field name="expiry_date"/>
+                </list>
+            </field>
+        </record>
+        <record id="company_documents_details_view_search" model="ir.ui.view">
+            <field name="name">company.documents.details.view.search</field>
+            <field name="model">company.document.details</field>
+            <field name="arch" type="xml">
+                <search string="Search Company Documents">
+                    <field name="name"/>
+                    <field name="document_type_id"/>
+                    <field name="state"/>
+                    <separator/>
+                    <filter string="Draft" name="state" domain="[('state', '=', 'draft')]"/>
+                    <filter string="Confirm" name="state" domain="[('state', '=', 'confirm')]"/>
+                    <filter string="Expire" name="state" domain="[('state', '=', 'expire')]"/>
+                    <group>
+                        <filter string="Document Type" name="document_type" context="{'group_by':'document_type_id'}"/>
+                        <separator/>
+                        <filter string="Status" name="state" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <!--        Action-->
+        <record id="company_documents_details_action" model="ir.actions.act_window">
+            <field name="name">Company Documents</field>
+            <field name="res_model">company.document.details</field>
+            <field name="view_mode">list,form</field>
+        </record>
+    </data>
+</odoo>

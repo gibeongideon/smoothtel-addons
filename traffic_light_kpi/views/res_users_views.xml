@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_users_form_kpi_access" model="ir.ui.view">
+        <field name="name">res.users.form.kpi.access</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <field name="email" position="after">
+                <group string="KPI Access" groups="base.group_system">
+                    <div class="o_form_label" colspan="2">
+                        All internal users automatically get KPI User access.
+                    </div>
+                    <field name="kpi_is_manager"/>
+                    <field name="kpi_is_admin"/>
+                </group>
+            </field>
+        </field>
+    </record>
+
+</odoo>

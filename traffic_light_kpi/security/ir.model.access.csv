@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kpi_definition_user,kpi.definition user read,model_kpi_definition,traffic_light_kpi.group_kpi_user,1,0,0,0
+access_kpi_definition_admin,kpi.definition admin full,model_kpi_definition,traffic_light_kpi.group_kpi_admin,1,1,1,1
+access_kpi_result_user,kpi.result user read,model_kpi_result,traffic_light_kpi.group_kpi_user,1,0,0,0
+access_kpi_result_system,kpi.result system write,model_kpi_result,base.group_system,1,1,1,1
+access_kpi_traffic_light_user,kpi.traffic.light user read,model_kpi_traffic_light,traffic_light_kpi.group_kpi_user,1,0,0,0
+access_kpi_traffic_light_system,kpi.traffic.light system write,model_kpi_traffic_light,base.group_system,1,1,1,1

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <menuitem
+                id="waiting_approval"
+                name="Waiting Approvals"
+                action="action_approval_quotations"
+                parent="sale.sale_order_menu"/>
+    </data>
+
+</odoo>

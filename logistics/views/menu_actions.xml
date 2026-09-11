@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="new_register_file_view" model="ir.actions.act_window">
+        <field name="name">Register File</field>
+        <field name="res_model">register.file</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                CREATE A NEW REGISTER FILE
+            </p>
+        </field>
+    </record>
+
+    <record id="new_shipping_file_view" model="ir.actions.act_window">
+        <field name="name">Shipping File</field>
+        <field name="res_model">shipping.file</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                CREATE A NEW SHIPPING FILE
+            </p>
+        </field>
+    </record>
+
+    <record id="new_finance_charges_view" model="ir.actions.act_window">
+        <field name="name">Finance Charges</field>
+        <field name="res_model">finance.charges</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                CREATE A NEW FINANCE CHARGES
+            </p>
+        </field>
+    </record>
+
+</odoo>

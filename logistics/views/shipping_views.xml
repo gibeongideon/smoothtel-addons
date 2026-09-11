@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+    <record id="view_shipping_line_form" model="ir.ui.view">
+        <field name="name">shipping.file.form</field>
+        <field name="model">shipping.file</field>
+        <field name="arch" type="xml">
+            <form string="Shipping">
+                <header>
+                    <field name="register_state" widget="statusbar"
+                                statusbar_colors='{"done":"green","cancelled":"red","on_hold":"orange"}'/>
+                    <button name="action_create_finance_charge" type="object" string="To Finance" class="btn-primary" invisible = "register_state != 'awaiting_shipping'"/>
+                    <!-- <button name="action_confirm" type="object" string="Confirm" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'draft')]}"/> -->
+                    <!-- <button name="action_set_in_transit" type="object" string="Set In Transit" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'confirmed')]}"/> -->
+                    <!-- <button name="action_confirm_eta" type="object" string="Confirm ETA" attrs="{'invisible': [('state', '!=', 'in_transit')]}"/> -->
+                    <!-- <button name="action_ready_for_do" type="object" string="Ready for DO" attrs="{'invisible': [('state', '!=', 'eta_confirmed')]}"/> -->
+                    <!-- <button name="action_release_do" type="object" string="Release DO" class="oe_highlight" attrs="{'invisible': [('state', 'not in', ['ready_for_do', 'awaiting_docs'])]}"/> -->
+                    <!-- <button name="action_cancel" type="object" string="Cancel" attrs="{'invisible': [('state', '=', 'cancel')]}"/> -->
+
+                    <!-- <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,in_transit,eta_confirmed,ready_for_do,do_released,delivered,invoiced"/> -->
+                </header>
+                <sheet>
+
+                    <div name="button_box" position="inside">
+                        <button class="oe_stat_button me-2" 
+                                name="action_open_register_file"
+                                type="object" 
+                                icon="fa-file"
+                                modifiers="{'invisible': [('register_file_id', '!=', False)]}">
+                                <field name="register_file_id" widget="statinfo">Register File</field>
+                               
+                        </button>
+
+                        <button class="oe_stat_button" 
+                                name="action_open_finance_charges"
+                                type="object" 
+                                icon="fa-money"
+                                modifiers="{'invisible': [('finance_charges_id', '!=', False)]}">
+                                <field name="finance_charges_id" widget="statinfo">Finance Charges</field>
+                               
+                        </button>
+                        
+                    </div>
+
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Shipping Details">
+                            <field name="register_file_id"/>
+                            <field name="partner_id"/>
+                            <field name="eta_datetime"/>
+                            <field name="actual_arrival_datetime"/>
+                        </group>
+                        <!-- <group string="Financials">
+                            <field name="currency_id"/> 
+                            <field name="shipping_charges" widget="monetary"/>
+                            <field name="charges_requested"/>
+                            <field name="payment_state" widget="badge" decoration-warning="payment_state=='not_paid'" decoration-info="payment_state=='invoiced'" decoration-success="payment_state=='paid'"/>
+                            <field name="invoice_id"/>
+                        </group> -->
+                        <group string="Delivery Order">
+                            <field name="do_released"/>
+                            <field name="do_attachment_id" widget="file_upload"/>
+                            <field name="do_release_date"/>
+                        </group>
+                        <group string="Port Operations">
+                            <field name="port_attachment_id" widget="file_upload"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_shipping_file_list" model="ir.ui.view">
+        <field name="name">shipping.file.list</field>
+        <field name="model">shipping.file</field>
+        <field name="arch" type="xml">
+            <list string="Shipments">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="eta_datetime"/>
+                <field name="shipping_charges" sum="Total Charges"/> <field name="currency_id" invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+    
+</odoo>

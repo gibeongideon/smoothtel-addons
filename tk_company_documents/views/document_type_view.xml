@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!--        views-->
+        <record id="company_documents_type_details_view_list" model="ir.ui.view">
+            <field name="name">company.documents.type.details.view.list</field>
+            <field name="model">company.document.type</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="document_type"/>
+                </list>
+            </field>
+        </record>
+        <!--        action-->
+        <record id="company_documents_type_details_action" model="ir.actions.act_window">
+            <field name="name">Document Type</field>
+            <field name="res_model">company.document.type</field>
+            <field name="view_mode">list</field>
+        </record>
+    </data>
+</odoo>

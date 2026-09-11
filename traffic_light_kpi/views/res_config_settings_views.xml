@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_kpi_thresholds" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.kpi.thresholds</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="KPI Tracker" name="traffic_light_kpi" groups="traffic_light_kpi.group_kpi_admin">
+                    <block title="Traffic Light Thresholds">
+                        <setting string="Green Threshold" help="Minimum KPI progress percentage that should be considered green.">
+                            <field name="kpi_green_threshold"/>
+                        </setting>
+                        <setting string="Yellow Threshold" help="Minimum KPI progress percentage that should be considered yellow. Lower values become red.">
+                            <field name="kpi_yellow_threshold"/>
+                        </setting>
+                        <div class="text-muted mt-2">
+                            Example: Green = 80, Yellow = 50 means 80%+ is green, 50% to 79% is yellow, and below 50% is red.
+                        </div>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_kpi_settings" model="ir.actions.act_window">
+        <field name="name">KPI Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'traffic_light_kpi', 'bin_size': False}</field>
+    </record>
+
+</odoo>

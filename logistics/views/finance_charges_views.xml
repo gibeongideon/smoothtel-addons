@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="finance_charges_file_view_form" model="ir.ui.view">
+            <field name="name">finance.charges.form</field>
+            <field name="model">finance.charges</field>
+            <field name="priority" eval="8" />
+            <field name="arch" type="xml">
+                <form string="Finance Charges">
+                    <header>
+                        <field name="finance_state" widget="statusbar"
+                                statusbar_colors='{"done":"green","cancelled":"red","on_hold":"orange"}'/>
+                                
+                        <button name="create_invoice" string="Create Invoice" class="btn-primary" type="object" invisible = "finance_state == 'invoiced'"/>  
+
+                        <!-- <button name="action_ready_do" type="object" string="Ready for DO" class="btn-primary" />
+                        <button name="action_pending_port_ops" type="object" string="To Port Ops" class="btn-primary" />
+                        <button name="action_loading" type="object" string="Start Loading" class="btn-primary" />
+                        <button name="action_return_progress" type="object" string="Return In Progress" class="btn-primary" />
+                        <button name="action_container_dropped" type="object" string="Container Dropped" class="btn-primary" />
+                        <button name="action_validation" type="object" string="Validate" class="btn-success" />
+                        <button name="action_done" type="object" string="Mark as Done" class="btn-success" /> -->
+
+                        <!-- Utility Buttons -->
+                        <!-- <button name="action_cancel" type="object" string="Cancel" class="btn-danger" /> -->
+                                            
+                    </header>
+                    <sheet>
+                    <div name="button_box" position="inside">
+                        <button class="oe_stat_button me-2" 
+                                name="action_finance_register_file"
+                                type="object" 
+                                icon="fa-file"
+                                modifiers="{'invisible': [('register_finance_file_id', '!=', False)]}">
+                                <field name="register_finance_file_id" widget="statinfo">Register File</field>
+                        </button>
+                        
+                        <button class="oe_stat_button me-2" 
+                                name="action_finance_shipping_file"
+                                type="object" 
+                                icon="fa-ship"
+                                modifiers="{'invisible': [('shipping_finance_file_id', '!=', False)]}">
+                                <field name="shipping_finance_file_id" widget="statinfo">Shipping File</field>
+                        </button>
+
+                        <button class="oe_stat_button" 
+                                name="get_associated_invoice"
+                                type="object" 
+                                icon="fa-credit-card">
+                                <field string="Invoice" name="invoice_count" widget="statinfo" />
+                        </button>
+
+                        
+                    </div>
+
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+
+                        <group string="Finance Charges">
+                            <group>
+                                <field name="register_finance_file_id"/>
+                                <field name="shipping_finance_file_id"/>
+                                <field name="create_date"/>
+                                <field name="operator_id"/>
+                            </group>
+                            <group>
+                                <field name="inv_ref"/>
+                                <field name="journal_id"/>
+                                <field name="invoice_payment_term_id"/>
+                                <field name="client"/>
+                                <!-- <field name="invoice_status" widget="badge"/> -->
+                            </group>
+                        </group>
+
+                    <notebook>
+                        <page string="Import Charges">
+                            <field name="finance_lines">
+                                <list string="Import Charges" editable="bottom">
+                                    <field name="product_item" />
+                                    <field name="account_id" />
+                                    <field name="amount" />
+                                    
+                                </list>
+                            </field>
+                            <div class="oe_clear" />
+                        </page>
+                    </notebook>
+
+                    <group class="oe_subtotal_footer oe_right" colspan="2" name="account_total">
+                        <field name="account_total" widget='monetary' />
+                    </group>
+
+                    </sheet>
+                    <chatter/>
+
+                </form>
+            </field>
+        </record>
+
+        <record id="finance_charges_view_list" model="ir.ui.view">
+            <field name="name">finance.charges.list</field>
+            <field name="model">finance.charges</field>
+            <field name="arch" type="xml">
+                <list string="Finance Charges">
+                    <field name="register_finance_file_id"/>
+                    <field name="shipping_finance_file_id"/>
+                    <field name="create_date"/>
+                    <field name="operator_id"/>
+                    <field name="client"/>
+                </list>
+            </field>
+        </record>
+        
+</odoo>

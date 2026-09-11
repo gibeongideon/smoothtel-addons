@@ -1,0 +1,427 @@
+/* =============================================================
+   KPI Traffic Light System – Stylesheet
+   Odoo 18 / OWL 2
+   ============================================================= */
+
+/* ----------------------------------------------------------
+   Systray Container
+   ---------------------------------------------------------- */
+.o_kpi_traffic_light_systray {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.o_kpi_traffic_light_systray:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+}
+
+/* ----------------------------------------------------------
+   Traffic Light Housing
+   ---------------------------------------------------------- */
+.kpi-tl-housing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.16), rgba(0,0,0,0.22));
+    box-shadow:
+        inset 0 1px 4px rgba(255,255,255,0.08),
+        inset 0 -2px 6px rgba(0,0,0,0.28),
+        0 4px 10px rgba(15, 23, 42, 0.22);
+}
+
+/* ----------------------------------------------------------
+   Traffic Light Dot – Sizes
+   ---------------------------------------------------------- */
+.kpi-tl-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px 1px rgba(0,0,0,0.4);
+    position: relative;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.kpi-tl-dot-sm {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.kpi-tl-inner {
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.32);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.28);
+    pointer-events: none;
+}
+
+/* ----------------------------------------------------------
+   Colors
+   ---------------------------------------------------------- */
+.kpi-tl-green {
+    background: radial-gradient(circle at 35% 35%, #5dfc6a, #27ae60);
+    box-shadow: 0 0 10px 3px rgba(39, 174, 96, 0.72);
+}
+
+.kpi-tl-yellow {
+    background: radial-gradient(circle at 35% 35%, #ffe066, #f39c12);
+    box-shadow: 0 0 10px 3px rgba(243, 156, 18, 0.72);
+}
+
+.kpi-tl-red {
+    background: radial-gradient(circle at 35% 35%, #ff7070, #e74c3c);
+    box-shadow: 0 0 10px 3px rgba(231, 76, 60, 0.74);
+}
+
+.kpi-tl-grey {
+    background: radial-gradient(circle at 35% 35%, #d0d0d0, #95a5a6);
+    box-shadow: 0 0 4px 1px rgba(0,0,0,0.2);
+}
+
+/* ----------------------------------------------------------
+   Main Indicator Animation
+   ---------------------------------------------------------- */
+@keyframes kpi-blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.15; }
+}
+
+@keyframes kpi-pulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: saturate(1);
+    }
+    50% {
+        transform: scale(1.08);
+        filter: saturate(1.12);
+    }
+}
+
+@keyframes kpi-halo {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255,255,255,0.0);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(255,255,255,0.08);
+    }
+}
+
+.kpi-tl-red {
+    animation: kpi-blink 1s ease-in-out infinite, kpi-pulse 1.4s ease-in-out infinite, kpi-halo 1.4s ease-in-out infinite;
+}
+
+.kpi-tl-yellow {
+    animation: kpi-blink 1.8s ease-in-out infinite, kpi-pulse 2s ease-in-out infinite, kpi-halo 2s ease-in-out infinite;
+}
+
+.kpi-tl-green {
+    animation: kpi-pulse 3.2s ease-in-out infinite;
+}
+
+.kpi-tl-grey {
+    animation: none;
+}
+
+.o_kpi_traffic_light_systray:hover .kpi-tl-dot {
+    transform: scale(1.08);
+}
+
+/* ----------------------------------------------------------
+   Score Label in Systray
+   ---------------------------------------------------------- */
+.kpi-tl-score {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    opacity: 0.95;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.28);
+}
+
+/* ----------------------------------------------------------
+   Dashboard Panel (Dropdown Popup)
+   ---------------------------------------------------------- */
+.kpi-dashboard-panel {
+    min-width: 480px;
+    max-width: 600px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    overflow: hidden;
+    font-size: 13px;
+}
+
+.kpi-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.kpi-panel-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.kpi-panel-score {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.o_kpi_result_dashboard {
+    padding: 8px 0;
+}
+
+.o_kpi_result_card {
+    position: relative;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.o_kpi_result_card_status {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 6px;
+}
+
+.o_kpi_result_card_status_green {
+    background: #27ae60;
+}
+
+.o_kpi_result_card_status_yellow {
+    background: #f39c12;
+}
+
+.o_kpi_result_card_status_red {
+    background: #e74c3c;
+}
+
+.o_kpi_result_card_status_grey {
+    background: #95a5a6;
+}
+
+.o_kpi_result_metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.o_kpi_result_metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e5e7eb;
+}
+
+.o_kpi_team_summary_card {
+    padding: 18px 18px 16px 22px;
+}
+
+.o_kpi_team_member_name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #0f172a;
+}
+
+.o_kpi_team_summary_score {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.o_kpi_team_summary_score_value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #111827;
+}
+
+.o_kpi_team_status_breakdown {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ----------------------------------------------------------
+   KPI Table
+   ---------------------------------------------------------- */
+.kpi-panel-body {
+    padding: 8px 0;
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.kpi-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.kpi-table thead th {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.kpi-table tbody tr.kpi-row {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+}
+
+.kpi-table tbody tr.kpi-row:hover {
+    background: #f8f9fa;
+}
+
+/* Row left border by status */
+.kpi-row-green  { border-left: 3px solid #27ae60; }
+.kpi-row-yellow { border-left: 3px solid #f39c12; }
+.kpi-row-red    { border-left: 3px solid #e74c3c; }
+.kpi-row-grey   { border-left: 3px solid #95a5a6; }
+
+.kpi-table td {
+    padding: 7px 12px;
+    vertical-align: middle;
+}
+
+.kpi-name {
+    font-weight: 500;
+    max-width: 160px;
+}
+
+.kpi-period {
+    display: block;
+    font-size: 11px;
+    color: #6c757d;
+    font-weight: 400;
+}
+
+.kpi-target, .kpi-actual {
+    text-align: right;
+    white-space: nowrap;
+    color: #495057;
+}
+
+.kpi-pct {
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* ----------------------------------------------------------
+   Progress Bar
+   ---------------------------------------------------------- */
+.kpi-progress-bar-wrap {
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.kpi-progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+/* Use status color for bar fill */
+.kpi-progress-bar.kpi-tl-green  { background: #27ae60; animation: none; box-shadow: none; }
+.kpi-progress-bar.kpi-tl-yellow { background: #f39c12; animation: none; box-shadow: none; }
+.kpi-progress-bar.kpi-tl-red    { background: #e74c3c; animation: none; box-shadow: none; }
+
+/* ----------------------------------------------------------
+   Status Badge
+   ---------------------------------------------------------- */
+.kpi-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.kpi-badge-green  { background: #d4edda; color: #155724; }
+.kpi-badge-yellow { background: #fff3cd; color: #856404; }
+.kpi-badge-red    { background: #f8d7da; color: #721c24; }
+.kpi-badge-grey   { background: #e2e3e5; color: #383d41; }
+
+/* ----------------------------------------------------------
+   Insight Row
+   ---------------------------------------------------------- */
+.kpi-insight-row {
+    background: #fafafa;
+}
+
+.kpi-insight {
+    padding: 4px 12px 8px 16px !important;
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.kpi-insight .fa {
+    margin-right: 4px;
+    color: #f39c12;
+}
+
+/* ----------------------------------------------------------
+   Empty State
+   ---------------------------------------------------------- */
+.kpi-panel-empty {
+    padding: 24px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 13px;
+}
+
+/* ----------------------------------------------------------
+   Footer
+   ---------------------------------------------------------- */
+.kpi-panel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ----------------------------------------------------------
+   Odoo list view row decorations (backend)
+   ---------------------------------------------------------- */
+.o_list_view .o_data_row.kpi-row-green td {
+    border-left: 3px solid #27ae60;
+}
+.o_list_view .o_data_row.kpi-row-red td {
+    border-left: 3px solid #e74c3c;
+}

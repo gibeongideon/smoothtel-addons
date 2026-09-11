@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- KPI Definition List View -->
+    <record id="view_kpi_definition_list" model="ir.ui.view">
+        <field name="name">kpi.definition.list</field>
+        <field name="model">kpi.definition</field>
+        <field name="arch" type="xml">
+            <list string="KPI Definitions">
+                <field name="name"/>
+                <field name="department" string="Business Area"/>
+                <field name="kpi_code" string="KPI Type"/>
+                <field name="evaluation_scope" string="Scope"/>
+                <field name="period" string="Frequency"/>
+                <field name="target_value" string="Target"/>
+                <field name="job_position_count" string="Positions"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- KPI Definition Form View -->
+    <record id="view_kpi_definition_form" model="ir.ui.view">
+        <field name="name">kpi.definition.form</field>
+        <field name="model">kpi.definition</field>
+        <field name="arch" type="xml">
+            <form string="KPI Definition">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. Quotation Conversion Rate"/>
+                        </h1>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Simple setup flow:</strong> choose what you want to measure, set the target,
+                        choose how often it should be checked, then assign the job positions.
+                    </div>
+                    <notebook>
+                        <page string="Basic Setup">
+                            <group string="Step 1: What should be measured?">
+                                <group>
+                                    <field name="department" string="Business Area"/>
+                                    <field name="kpi_code" string="KPI Type"/>
+                                    <field name="evaluation_scope" string="Measure For"/>
+                                    <field name="period" string="Check Frequency"/>
+                                    <field name="is_turnaround_kpi" column_invisible="True"/>
+                                    <field name="target_field_help" column_invisible="True"/>
+                                    <field name="target_value" string="Target"
+                                           invisible="is_turnaround_kpi"/>
+                                    <field name="target_value" string="Compliance Target (%)"
+                                           invisible="not is_turnaround_kpi"/>
+                                </group>
+                                <group>
+                                    <field name="measure_type" string="Display As"/>
+                                    <field name="aggregation" string="Calculation Type"/>
+                                    <field name="trend_period_count"/>
+                                    <field name="normalize_per_member"
+                                           invisible="evaluation_scope != 'team'"/>
+                                    <field name="weight" string="Importance"/>
+                                    <field name="active"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-light"
+                                 invisible="not is_turnaround_kpi">
+                                <strong>Turnaround KPI setup:</strong> here the target means compliance percentage, not volume.
+                                Example: set <code>90</code> together with <code>7</code> window days to mean
+                                <code>90% of tickets must be closed within 7 days</code>.
+                            </div>
+                            <div class="text-muted"
+                                 invisible="is_turnaround_kpi">
+                                For normal KPIs, target means the expected count, amount, or percentage for the period.
+                            </div>
+                            <group string="Step 2: Who should receive this KPI?">
+                                <field name="job_position_ids" nolabel="1"
+                                       widget="many2many"
+                                       mode="list"
+                                       context="{'tree_view_ref': 'hr.view_job_tree'}"
+                                       options="{'no_create': True, 'no_create_edit': True}">
+                                    <list string="Selected Job Positions" create="false" delete="true">
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                                <div class="text-muted">
+                                    Use “Add” to open a popup and select one or more job positions. Every employee in the selected positions will receive this KPI automatically.
+                                </div>
+                                <field name="team_member_job_ids" nolabel="1"
+                                       invisible="evaluation_scope != 'team'"
+                                       widget="many2many"
+                                       mode="list"
+                                       context="{'tree_view_ref': 'hr.view_job_tree'}"
+                                       options="{'no_create': True, 'no_create_edit': True}">
+                                    <list string="Team Member Positions" create="false" delete="true">
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                                <div class="text-muted" invisible="evaluation_scope != 'team'">
+                                    Optional: limit the team KPI to direct reports in these job positions only.
+                                </div>
+                            </group>
+                            <group string="Step 3: Helpful examples">
+                                <div class="alert alert-light" colspan="2">
+                                    <strong>Quotation Conversion Rate</strong><br/>
+                                    Business Area = Sales, KPI Type = Quotation Conversion Within Window,
+                                    Check Frequency = Monthly, Target = 60, Conversion Window = 30 days.
+                                    <br/><br/>
+                                    <strong>Converted Sales Amount</strong><br/>
+                                    Business Area = Sales, KPI Type = Converted Sales Amount Within Window,
+                                    Check Frequency = Monthly, Display As = Amount, Target = monthly revenue goal,
+                                    Conversion Window = 30 days.
+                                    <br/><br/>
+                                    <strong>Qualified Leads</strong><br/>
+                                    Business Area = Sales, KPI Type = Qualified Leads Count,
+                                    Check Frequency = Monthly, Target = 20.
+                                    <br/><br/>
+                                    <strong>Follow-Up Calls</strong><br/>
+                                    KPI Type = Activity Count, Check Frequency = Daily, Target = 24.
+                                    <br/><br/>
+                                    <strong>Purchase Order Amount</strong><br/>
+                                    Business Area = Procurement, KPI Type = Purchase Order Amount,
+                                    Check Frequency = Monthly, Display As = Amount.
+                                    <br/><br/>
+                                    <strong>CSC Ticket Closure</strong><br/>
+                                    Business Area = Customer Service, KPI Type = Helpdesk Tickets Closed,
+                                    Check Frequency = Weekly, Target = 25.
+                                    <br/><br/>
+                                    <strong>CSC Ticket Turnaround</strong><br/>
+                                    Business Area = Customer Service, KPI Type = Helpdesk Tickets Closed Within Window,
+                                    Check Frequency = Weekly, Target = 90, Conversion Window = 7 days.
+                                    <br/><br/>
+                                    <strong>Approval Turnaround</strong><br/>
+                                    Business Area = Operations, KPI Type = Approval Decisions Within Window,
+                                    Check Frequency = Monthly, Target = 90, Conversion Window = 2 days.
+                                    <br/><br/>
+                                    <strong>Expense Approval Turnaround</strong><br/>
+                                    Business Area = Finance, KPI Type = Expense Approvals Within Window,
+                                    Check Frequency = Monthly, Target = 95, Conversion Window = 2 days.
+                                </div>
+                            </group>
+                            <group string="Importance Guide">
+                                <div class="alert alert-secondary" colspan="2">
+                                    <strong>What does Importance mean?</strong><br/>
+                                    Importance controls how much this KPI affects the employee's overall KPI score.
+                                    The system uses a weighted average:
+                                    <br/>
+                                    <code>overall score = sum(kpi percentage x weight) / sum(weights)</code>
+                                    <br/><br/>
+                                    <strong>Recommended values</strong><br/>
+                                    1 = normal, 2 = important, 3 = high importance, 5 = critical only.
+                                    <br/><br/>
+                                    <strong>Practical limit</strong><br/>
+                                    Keep most KPIs between 1 and 3. Avoid very large numbers because one KPI can dominate the final score.
+                                    <br/><br/>
+                                    <strong>Example for Sales Admin</strong><br/>
+                                    Quotation Conversion = 3, Converted Sales Amount = 3, Qualified Leads = 2,
+                                    Customer Visits = 2, Follow-Up Calls = 1, New SLAs = 2.
+                                    <br/><br/>
+                                    <strong>Example for Customer Care / Finance</strong><br/>
+                                    Tickets Closed = 3, Ticket Turnaround = 3, Tickets Opened = 1, Approval Turnaround = 3,
+                                    Expense Approval Turnaround = 2.
+                                </div>
+                            </group>
+                            <group string="Notes">
+                                <field name="description" nolabel="1"
+                                       placeholder="Add any business explanation here, for example: Count confirmed quotations converted within 30 days. Or: Count helpdesk tickets closed by the assigned CSC agent this week. Or: Measure % of approval decisions made within 2 days."/>
+                            </group>
+                        </page>
+                        <page string="Advanced Source Setup">
+                            <group string="Source Records">
+                                <group>
+                                    <field name="data_source" string="Source Family"/>
+                                    <field name="source_model"
+                                           placeholder="e.g. crm.lead"/>
+                                    <field name="source_date_field"
+                                           placeholder="e.g. create_date"/>
+                                    <field name="source_user_field"
+                                           placeholder="e.g. user_id"/>
+                                </group>
+                                <group>
+                                    <field name="result_field"
+                                           invisible="aggregation != 'sum'"
+                                           placeholder="e.g. amount_total"/>
+                                    <field name="conversion_window_days"
+                                           invisible="kpi_code != 'sale_conversion_30d' and kpi_code != 'sale_converted_amount_30d' and kpi_code != 'helpdesk_ticket_closed_within_window' and kpi_code != 'approval_decision_within_window' and kpi_code != 'store_requisition_approval_within_window' and kpi_code != 'quotation_approval_within_window' and kpi_code != 'expense_approval_within_window'"/>
+                                    <field name="turnaround_window_value"
+                                           invisible="not is_turnaround_kpi"/>
+                                    <field name="turnaround_window_unit"
+                                           invisible="not is_turnaround_kpi"/>
+                                    <field name="activity_type_id"
+                                           invisible="kpi_code != 'activity_count'"/>
+                                    <field name="stage_id"
+                                           invisible="kpi_code != 'crm_qualified_lead_count'"/>
+                                </group>
+                            </group>
+                            <group string="Compliance Mapping"
+                                   invisible="not is_turnaround_kpi">
+                                <group>
+                                    <field name="turnaround_start_field"
+                                           placeholder="e.g. request_id.approved_on"/>
+                                    <field name="turnaround_end_field"
+                                           placeholder="e.g. x_issued_on"/>
+                                    <field name="compliance_time_field"
+                                           invisible="kpi_code != 'operating_hours_compliance'"
+                                           placeholder="e.g. x_issued_on"/>
+                                </group>
+                                <group>
+                                    <field name="operating_hour_start"
+                                           invisible="kpi_code != 'operating_hours_compliance'"/>
+                                    <field name="operating_hour_end"
+                                           invisible="kpi_code != 'operating_hours_compliance'"/>
+                                </group>
+                            </group>
+                            <group string="Extra Filters">
+                                <field name="domain_filter" nolabel="1"
+                                       placeholder='Use only when needed. Example: [["type","=","opportunity"]]'/>
+                            </group>
+                            <group string="Custom Source"
+                                   invisible="not kpi_code or (kpi_code != 'custom_count' and kpi_code != 'custom_sum' and data_source != 'custom')">
+                                <field name="custom_model"
+                                       placeholder="e.g. project.task"/>
+                                <field name="custom_date_field"
+                                       placeholder="e.g. date_deadline"/>
+                                <field name="custom_user_field"
+                                       placeholder="e.g. user_id"/>
+                            </group>
+                            <div class="text-muted">
+                                Most standard Sales and Procurement KPIs do not need changes on this page.
+                                The KPI Type normally fills these fields for you.
+                            </div>
+                            <div class="alert alert-light" colspan="2">
+                                <strong>Official enterprise mappings used by this module</strong><br/>
+                                Helpdesk KPIs use <code>helpdesk.ticket</code> and are measured on the assigned agent in <code>user_id</code>.<br/>
+                                Approval turnaround KPIs use <code>approval.approver</code> and are measured on the approver user, not the requester.<br/>
+                                Expense approval turnaround KPIs use <code>hr.expense</code> and are measured on <code>approved_by</code> with timing from report submission to approval.<br/>
+                                Skills uses <code>hr.employee.skill</code> from <code>hr_skills</code>.<br/>
+                                Certification uses <code>hr.resume.line</code> from <code>hr_skills</code> and counts employee resume lines whose type name matches <code>Certificate</code>.
+                            </div>
+                            <div class="alert alert-secondary" colspan="2">
+                                <strong>Quick copy examples</strong><br/>
+                                <code>Monetary Lead Generation | Sales | Monthly | Amount | Target 500000</code><br/>
+                                <code>Skills | Other | Monthly | Count | Target 3</code><br/>
+                                <code>Certification | Other | Monthly | Count | Target 2 | Domain [["line_type_id.name","ilike","Certificate"]]</code><br/>
+                                <code>Helpdesk Tickets Closed | Customer Service | Weekly | Count | Target 25</code><br/>
+                                <code>Helpdesk Tickets Closed Within Window | Customer Service | Weekly | Percentage | Target 90 | Window 7</code><br/>
+                                <code>Approval Decisions Within Window | Operations | Monthly | Percentage | Target 90 | Window 2</code><br/>
+                                <code>Store Requisition Issuing Within Window | Procurement | Monthly | Percentage | Target 90 | Window 2 | Domain [["request_id.category_id.name","ilike","Store Requisition"]]</code><br/>
+                                <code>Quotation Approval Within Window | Sales | Monthly | Percentage | Target 90 | Window 2 | Domain [["request_id.category_id.name","ilike","Quotation"]]</code><br/>
+                                <code>Expense Approvals Within Window | Finance | Monthly | Percentage | Target 95 | Window 2</code>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- KPI Definition Search View -->
+    <record id="view_kpi_definition_search" model="ir.ui.view">
+        <field name="name">kpi.definition.search</field>
+        <field name="model">kpi.definition</field>
+        <field name="arch" type="xml">
+            <search string="Search KPI Definitions">
+                <field name="name"/>
+                <field name="job_position_ids"/>
+                <field name="department"/>
+                <field name="kpi_code"/>
+                <filter string="Daily" name="daily" domain="[('period','=','daily')]"/>
+                <filter string="Weekly" name="weekly" domain="[('period','=','weekly')]"/>
+                <filter string="Monthly" name="monthly" domain="[('period','=','monthly')]"/>
+                <filter string="Sales" name="sales" domain="[('department','=','sales')]"/>
+                <filter string="Procurement" name="procurement" domain="[('department','=','procurement')]"/>
+                <separator/>
+                <filter string="Archived" name="archived" domain="[('active','=',False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Department" name="group_department" context="{'group_by':'department'}"/>
+                    <filter string="KPI Logic" name="group_code" context="{'group_by':'kpi_code'}"/>
+                    <filter string="Period" name="group_period" context="{'group_by':'period'}"/>
+                    <filter string="Measure Type" name="group_type" context="{'group_by':'measure_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_kpi_definition" model="ir.actions.act_window">
+        <field name="name">KPI Definitions</field>
+        <field name="res_model">kpi.definition</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_kpi_definition_search"/>
+        <field name="context">{'active_test': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first KPI Definition
+            </p>
+            <p>
+                Link each KPI to one or more job positions.
+                Users with those positions will be evaluated automatically.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- KPI Result List View (Dashboard) -->
+    <record id="view_kpi_result_list" model="ir.ui.view">
+        <field name="name">kpi.result.list</field>
+        <field name="model">kpi.result</field>
+        <field name="arch" type="xml">
+            <list string="My KPI Results"
+                  decoration-success="status == 'green'"
+                  decoration-warning="status == 'yellow'"
+                  decoration-danger="status == 'red'"
+                  decoration-muted="status == 'grey'">
+                <field name="employee_id" string="Employee" optional="show"/>
+                <field name="user_id" string="User" optional="hide"/>
+                <field name="kpi_id" string="KPI"/>
+                <field name="period"/>
+                <field name="period_start"/>
+                <field name="period_end"/>
+                <field name="target_value" string="Target"/>
+                <field name="actual_value" string="Actual"/>
+                <field name="percentage" string="Progress %" widget="progressbar"
+                       options="{'max_value': 100, 'editable': false}"/>
+                <field name="status" widget="badge"
+                       decoration-success="status == 'green'"
+                       decoration-warning="status == 'yellow'"
+                       decoration-danger="status == 'red'"/>
+                <button name="action_open_source_records"
+                        type="object"
+                        string="View Records"
+                        class="btn btn-link"/>
+                <button name="action_open_trend_view"
+                        type="object"
+                        string="Trend"
+                        class="btn btn-link"/>
+                <field name="insight_text" string="Insight" optional="show"/>
+                <field name="last_updated" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kpi_result_kanban" model="ir.ui.view">
+        <field name="name">kpi.result.kanban</field>
+        <field name="model">kpi.result</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kpi_result_dashboard" create="false" quick_create="false">
+                <field name="kpi_id"/>
+                <field name="user_id"/>
+                <field name="employee_id"/>
+                <field name="status"/>
+                <field name="percentage"/>
+                <field name="target_value"/>
+                <field name="actual_value"/>
+                <field name="period"/>
+                <field name="period_start"/>
+                <field name="period_end"/>
+                <field name="insight_text"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_kanban_record oe_kanban_global_click o_kpi_result_card">
+                            <div t-att-class="'o_kpi_result_card_status o_kpi_result_card_status_' + record.status.raw_value"/>
+                            <div class="o_kanban_record_top mb-2">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="fs-5">
+                                        <field name="kpi_id"/>
+                                    </strong>
+                                    <div class="text-muted">
+                                        <span t-if="record.employee_id.raw_value">
+                                            <field name="employee_id"/>
+                                        </span>
+                                        <span t-else="">
+                                            <field name="user_id"/>
+                                        </span>
+                                    </div>
+                                    <div class="text-muted">
+                                        <field name="period"/>
+                                        <span> KPI</span>
+                                    </div>
+                                </div>
+                                <div class="ms-3">
+                                    <span t-att-class="'kpi-tl-dot-sm kpi-tl-' + record.status.raw_value"/>
+                                </div>
+                            </div>
+                            <div class="o_kpi_result_metrics">
+                                <div class="o_kpi_result_metric">
+                                    <span class="text-muted">Target</span>
+                                    <strong><field name="target_value"/></strong>
+                                </div>
+                                <div class="o_kpi_result_metric">
+                                    <span class="text-muted">Actual</span>
+                                    <strong><field name="actual_value"/></strong>
+                                </div>
+                                <div class="o_kpi_result_metric">
+                                    <span class="text-muted">Performance</span>
+                                    <strong><field name="percentage"/>%</strong>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <field name="percentage" widget="progressbar"
+                                       options="{'max_value': 100, 'editable': false}"/>
+                            </div>
+                            <div class="mt-3">
+                                <span t-att-class="'kpi-badge kpi-badge-' + record.status.raw_value">
+                                    <t t-esc="record.status.value"/>
+                                </span>
+                            </div>
+                            <div class="mt-3 text-muted" t-if="record.insight_text.raw_value">
+                                <field name="insight_text"/>
+                            </div>
+                            <div class="mt-3 d-flex justify-content-between align-items-center">
+                                <span class="text-muted">
+                                    <field name="period_start"/> - <field name="period_end"/>
+                                </span>
+                                <button name="action_open_source_records"
+                                        type="object"
+                                        string="View Records"
+                                        class="btn btn-primary btn-sm"/>
+                                <button name="action_open_trend_view"
+                                        type="object"
+                                        string="View Trend"
+                                        class="btn btn-secondary btn-sm ms-2"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_kpi_result_graph" model="ir.ui.view">
+        <field name="name">kpi.result.graph</field>
+        <field name="model">kpi.result</field>
+        <field name="arch" type="xml">
+            <graph string="KPI Trend" type="line">
+                <field name="period_start" interval="month"/>
+                <field name="percentage" type="measure"/>
+                <field name="actual_value" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- KPI Result Form View -->
+    <record id="view_kpi_result_form" model="ir.ui.view">
+        <field name="name">kpi.result.form</field>
+        <field name="model">kpi.result</field>
+        <field name="arch" type="xml">
+            <form string="KPI Result" create="false" edit="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="employee_id"/>
+                            <field name="kpi_id"/>
+                            <field name="period"/>
+                        </group>
+                        <group>
+                            <field name="period_start"/>
+                            <field name="period_end"/>
+                            <field name="last_updated"/>
+                        </group>
+                    </group>
+                    <group string="Performance">
+                        <field name="target_value"/>
+                        <field name="actual_value"/>
+                        <field name="percentage" widget="progressbar"
+                               options="{'max_value': 100, 'editable': false}"/>
+                        <field name="status" widget="badge"
+                               decoration-success="status == 'green'"
+                               decoration-warning="status == 'yellow'"
+                               decoration-danger="status == 'red'"/>
+                    </group>
+                    <group string="AI Insight" invisible="not insight_text">
+                        <field name="insight_text" nolabel="1"/>
+                    </group>
+                    <footer>
+                        <button name="action_open_source_records"
+                                type="object"
+                                string="View Source Records"
+                                class="btn btn-primary"/>
+                        <button name="action_open_trend_view"
+                                type="object"
+                                string="View Trend"
+                                class="btn btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- KPI Result Search View -->
+    <record id="view_kpi_result_search" model="ir.ui.view">
+        <field name="name">kpi.result.search</field>
+        <field name="model">kpi.result</field>
+        <field name="arch" type="xml">
+            <search string="Search KPI Results">
+                <field name="kpi_id"/>
+                <field name="user_id"/>
+                <field name="employee_id"/>
+                <filter string="My KPIs" name="my_kpis"
+                        domain="[('user_id','=',uid)]"/>
+                <filter string="Green" name="green" domain="[('status','=','green')]"/>
+                <filter string="Yellow" name="yellow" domain="[('status','=','yellow')]"/>
+                <filter string="Red" name="red" domain="[('status','=','red')]"/>
+                <separator/>
+                <filter string="Daily" name="daily" domain="[('period','=','daily')]"/>
+                <filter string="Weekly" name="weekly" domain="[('period','=','weekly')]"/>
+                <filter string="Monthly" name="monthly" domain="[('period','=','monthly')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="User" name="group_user" context="{'group_by':'user_id'}"/>
+                    <filter string="Employee" name="group_employee" context="{'group_by':'employee_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by':'status'}"/>
+                    <filter string="Period" name="group_period" context="{'group_by':'period'}"/>
+                    <filter string="Period Start" name="group_period_start" context="{'group_by':'period_start'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- My KPI Dashboard Action (default: my KPIs) -->
+    <record id="action_my_kpi_dashboard" model="ir.actions.act_window">
+        <field name="name">My KPI Dashboard</field>
+        <field name="res_model">kpi.result</field>
+        <field name="view_mode">kanban,list,graph,pivot,form</field>
+        <field name="domain">[('user_id','=',uid)]</field>
+        <field name="context">{'search_default_my_kpis': 1}</field>
+        <field name="search_view_id" ref="view_kpi_result_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No KPI results yet
+            </p>
+            <p>
+                KPI results are computed automatically every hour.
+                Make sure your job position has KPIs assigned.
+            </p>
+        </field>
+    </record>
+
+    <!-- Traffic Light Overview List -->
+    <record id="view_kpi_traffic_light_list" model="ir.ui.view">
+        <field name="name">kpi.traffic.light.list</field>
+        <field name="model">kpi.traffic.light</field>
+        <field name="arch" type="xml">
+            <list string="KPI Traffic Light Overview"
+                  decoration-success="overall_status == 'green'"
+                  decoration-warning="overall_status == 'yellow'"
+                  decoration-danger="overall_status == 'red'">
+                <field name="employee_id"/>
+                <field name="user_id" optional="hide"/>
+                <field name="kpi_count"/>
+                <field name="green_count"/>
+                <field name="yellow_count"/>
+                <field name="red_count"/>
+                <field name="overall_percentage" string="Score (%)"/>
+                <field name="overall_status" widget="badge"
+                       decoration-success="overall_status == 'green'"
+                       decoration-warning="overall_status == 'yellow'"
+                       decoration-danger="overall_status == 'red'"/>
+                <field name="last_updated"/>
+                <button name="action_open_user_kpis"
+                        type="object"
+                        string="Open KPI Definitions"
+                        class="btn btn-link"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kpi_traffic_light_kanban" model="ir.ui.view">
+        <field name="name">kpi.traffic.light.kanban</field>
+        <field name="model">kpi.traffic.light</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kpi_result_dashboard" create="false" quick_create="false">
+                <field name="user_id"/>
+                <field name="employee_id"/>
+                <field name="overall_status"/>
+                <field name="overall_percentage"/>
+                <field name="kpi_count"/>
+                <field name="green_count"/>
+                <field name="yellow_count"/>
+                <field name="red_count"/>
+                <field name="last_updated"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_kanban_record o_kpi_result_card o_kpi_team_summary_card">
+                            <div t-att-class="'o_kpi_result_card_status o_kpi_result_card_status_' + record.overall_status.raw_value"/>
+                            <div class="o_kanban_record_top align-items-start">
+                                <div class="o_kanban_record_headings">
+                                    <div class="o_kpi_team_member_name">
+                                        <span t-if="record.employee_id.raw_value">
+                                            <field name="employee_id"/>
+                                        </span>
+                                        <span t-else="">
+                                            <field name="user_id"/>
+                                        </span>
+                                    </div>
+                                    <div class="text-muted mt-1">
+                                        Overall KPI Summary
+                                    </div>
+                                </div>
+                                <div class="ms-3 d-flex flex-column align-items-end gap-2">
+                                    <span t-att-class="'kpi-tl-dot kpi-tl-' + record.overall_status.raw_value"/>
+                                    <span t-att-class="'kpi-badge kpi-badge-' + record.overall_status.raw_value">
+                                        <t t-esc="record.overall_status.value"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="o_kpi_team_summary_score">
+                                <span class="o_kpi_team_summary_score_value">
+                                    <field name="overall_percentage"/>%
+                                </span>
+                                <span class="text-muted">overall performance</span>
+                            </div>
+                            <div class="o_kpi_result_metrics">
+                                <div class="o_kpi_result_metric">
+                                    <span class="text-muted">KPIs</span>
+                                    <strong><field name="kpi_count"/></strong>
+                                </div>
+                                <div class="o_kpi_result_metric">
+                                    <span class="text-muted">Healthy</span>
+                                    <strong><field name="green_count"/></strong>
+                                </div>
+                                <div class="o_kpi_result_metric">
+                                    <span class="text-muted">Needs attention</span>
+                                    <strong><t t-esc="(record.yellow_count.raw_value or 0) + (record.red_count.raw_value or 0)"/></strong>
+                                </div>
+                            </div>
+                            <div class="o_kpi_team_status_breakdown mt-3">
+                                <span class="kpi-badge kpi-badge-green">Green: <field name="green_count"/></span>
+                                <span class="kpi-badge kpi-badge-yellow">Yellow: <field name="yellow_count"/></span>
+                                <span class="kpi-badge kpi-badge-red">Red: <field name="red_count"/></span>
+                            </div>
+                            <div class="mt-3 d-flex justify-content-between align-items-center">
+                                <span class="text-muted">
+                                    Updated: <field name="last_updated"/>
+                                </span>
+                                <button name="action_open_user_kpis"
+                                        type="object"
+                                        string="Open KPI Definitions"
+                                        class="btn btn-primary btn-sm"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_kpi_traffic_light_form" model="ir.ui.view">
+        <field name="name">kpi.traffic.light.form</field>
+        <field name="model">kpi.traffic.light</field>
+        <field name="arch" type="xml">
+            <form string="Employee KPI Summary" create="false" edit="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="employee_id" invisible="not employee_id"/>
+                            <field name="user_id" invisible="employee_id"/>
+                        </h1>
+                        <div class="text-muted">Employee KPI Summary</div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="user_id"/>
+                            <field name="last_updated"/>
+                        </group>
+                        <group>
+                            <field name="overall_percentage" string="Overall Score (%)"/>
+                            <field name="overall_status" widget="badge"
+                                   decoration-success="overall_status == 'green'"
+                                   decoration-warning="overall_status == 'yellow'"
+                                   decoration-danger="overall_status == 'red'"/>
+                        </group>
+                    </group>
+                    <group string="KPI Mix">
+                        <field name="kpi_count"/>
+                        <field name="green_count"/>
+                        <field name="yellow_count"/>
+                        <field name="red_count"/>
+                    </group>
+                    <footer>
+                        <button name="action_open_user_kpis"
+                                type="object"
+                                string="Open KPI Definitions"
+                                class="btn btn-primary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kpi_traffic_light_search" model="ir.ui.view">
+        <field name="name">kpi.traffic.light.search</field>
+        <field name="model">kpi.traffic.light</field>
+        <field name="arch" type="xml">
+            <search string="Search Employee KPI Summaries">
+                <field name="employee_id"/>
+                <field name="user_id"/>
+                <filter string="Needs Attention" name="needs_attention"
+                        domain="['|', ('red_count', '>', 0), ('yellow_count', '>', 0)]"/>
+                <filter string="Red" name="red" domain="[('overall_status', '=', 'red')]"/>
+                <filter string="Yellow" name="yellow" domain="[('overall_status', '=', 'yellow')]"/>
+                <filter string="Green" name="green" domain="[('overall_status', '=', 'green')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_status" context="{'group_by':'overall_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Team KPI Dashboard Action (manager) -->
+    <record id="action_team_kpi_dashboard" model="ir.actions.act_window">
+        <field name="name">Team KPI Summary</field>
+        <field name="res_model">kpi.traffic.light</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_kpi_traffic_light_search"/>
+        <field name="context">{'search_default_needs_attention': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No employee KPI summaries yet
+            </p>
+            <p>
+                KPI summaries appear after KPI results are computed for employees.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_team_member_kpis" model="ir.actions.act_window">
+        <field name="name">Employee KPI Results</field>
+        <field name="res_model">kpi.result</field>
+        <field name="view_mode">kanban,list,graph,pivot,form</field>
+        <field name="search_view_id" ref="view_kpi_result_search"/>
+    </record>
+
+    <record id="action_kpi_traffic_light_overview" model="ir.actions.act_window">
+        <field name="name">Traffic Light Overview</field>
+        <field name="res_model">kpi.traffic.light</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_kpi_traffic_light_search"/>
+    </record>
+
+</odoo>

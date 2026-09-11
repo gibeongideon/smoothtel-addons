@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Top-level menu -->
+    <menuitem
+        id="menu_kpi_root"
+        name="KPI Tracker"
+        sequence="90"
+        web_icon="traffic_light_kpi,static/description/icon.png"
+        groups="traffic_light_kpi.group_kpi_user"
+    />
+
+    <!-- My Performance -->
+    <menuitem
+        id="menu_kpi_my"
+        name="My Performance"
+        parent="menu_kpi_root"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_my_kpi_dashboard"
+        name="My KPI Dashboard"
+        parent="menu_kpi_my"
+        action="action_my_kpi_dashboard"
+        sequence="10"
+    />
+
+    <!-- Team Performance (Managers) -->
+    <menuitem
+        id="menu_kpi_team"
+        name="Team Performance"
+        parent="menu_kpi_root"
+        sequence="20"
+        groups="traffic_light_kpi.group_kpi_manager"
+    />
+    <menuitem
+        id="menu_team_kpi_dashboard"
+        name="Team KPI Summary"
+        parent="menu_kpi_team"
+        action="action_team_kpi_dashboard"
+        sequence="10"
+        groups="traffic_light_kpi.group_kpi_manager"
+    />
+    <menuitem
+        id="menu_traffic_light_overview"
+        name="Traffic Light Overview"
+        parent="menu_kpi_team"
+        action="action_kpi_traffic_light_overview"
+        sequence="20"
+        groups="traffic_light_kpi.group_kpi_manager"
+    />
+
+    <!-- Configuration (Admin) -->
+    <menuitem
+        id="menu_kpi_config"
+        name="Configuration"
+        parent="menu_kpi_root"
+        sequence="100"
+        groups="traffic_light_kpi.group_kpi_admin"
+    />
+    <menuitem
+        id="menu_kpi_definitions"
+        name="KPI Definitions"
+        parent="menu_kpi_config"
+        action="action_kpi_definition"
+        sequence="10"
+        groups="traffic_light_kpi.group_kpi_admin"
+    />
+    <menuitem
+        id="menu_kpi_settings"
+        name="Settings"
+        parent="menu_kpi_config"
+        action="action_kpi_settings"
+        sequence="20"
+        groups="traffic_light_kpi.group_kpi_admin"
+    />
+
+</odoo>

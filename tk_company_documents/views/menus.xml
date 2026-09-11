@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <menuitem id="menu_documents"
+                  name="Documents"
+                  parent="base.menu_users"
+                  sequence="15"
+        />
+        <menuitem id="menu_company_documents"
+                  name="Documents"
+                  parent="menu_documents"
+                  action="company_documents_details_action"
+        />
+        <menuitem id="menu_company_documents_type"
+                  name="Document Type"
+                  parent="menu_documents"
+                  action="company_documents_type_details_action"
+        />
+    </data>
+</odoo>

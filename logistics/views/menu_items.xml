@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_logistic_management_module" name="Logistics" web_icon="logistics,static/description/logo1.png"/>
+
+    <menuitem id="view_home_account" name="Register File" parent="menu_logistic_management_module"
+        action="new_register_file_view" sequence="0" />
+
+    <menuitem id="view_shipping_account" name="Shipping" parent="menu_logistic_management_module"
+        action="new_shipping_file_view" sequence="5" />
+
+    <menuitem id="view_finance_charges_account" name="Finance" parent="menu_logistic_management_module"
+        action="new_finance_charges_view" sequence="10" />
+        
+</odoo>
