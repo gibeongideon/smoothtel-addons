@@ -1,6 +1,6 @@
 {
     'name': 'SO Approval',
-    'version': '17.0.1.0.0',
+    'version': '18.0.1.0.0',
     'depends': ['sale', 'base'],
     'data': [
         'views/so_approval_views.xml',
