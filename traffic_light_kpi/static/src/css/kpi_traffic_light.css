@@ -70,6 +70,11 @@
 /* ----------------------------------------------------------
    Colors
    ---------------------------------------------------------- */
+.kpi-tl-blue {
+    background: radial-gradient(circle at 35% 35%, #7cc4ff, #1e6fd9);
+    box-shadow: 0 0 10px 3px rgba(30, 111, 217, 0.72);
+}
+
 .kpi-tl-green {
     background: radial-gradient(circle at 35% 35%, #5dfc6a, #27ae60);
     box-shadow: 0 0 10px 3px rgba(39, 174, 96, 0.72);
@@ -126,7 +131,8 @@
     animation: kpi-blink 1.8s ease-in-out infinite, kpi-pulse 2s ease-in-out infinite, kpi-halo 2s ease-in-out infinite;
 }
 
-.kpi-tl-green {
+.kpi-tl-green,
+.kpi-tl-blue {
     animation: kpi-pulse 3.2s ease-in-out infinite;
 }
 
@@ -200,6 +206,10 @@
     position: absolute;
     inset: 0 auto 0 0;
     width: 6px;
+}
+
+.o_kpi_result_card_status_blue {
+    background: #1e6fd9;
 }
 
 .o_kpi_result_card_status_green {
@@ -300,6 +310,7 @@
 }
 
 /* Row left border by status */
+.kpi-row-blue   { border-left: 3px solid #1e6fd9; }
 .kpi-row-green  { border-left: 3px solid #27ae60; }
 .kpi-row-yellow { border-left: 3px solid #f39c12; }
 .kpi-row-red    { border-left: 3px solid #e74c3c; }
@@ -353,6 +364,7 @@
 }
 
 /* Use status color for bar fill */
+.kpi-progress-bar.kpi-tl-blue   { background: #1e6fd9; animation: none; box-shadow: none; }
 .kpi-progress-bar.kpi-tl-green  { background: #27ae60; animation: none; box-shadow: none; }
 .kpi-progress-bar.kpi-tl-yellow { background: #f39c12; animation: none; box-shadow: none; }
 .kpi-progress-bar.kpi-tl-red    { background: #e74c3c; animation: none; box-shadow: none; }
@@ -370,6 +382,7 @@
     white-space: nowrap;
 }
 
+.kpi-badge-blue   { background: #d6e8fb; color: #0b3d7a; }
 .kpi-badge-green  { background: #d4edda; color: #155724; }
 .kpi-badge-yellow { background: #fff3cd; color: #856404; }
 .kpi-badge-red    { background: #f8d7da; color: #721c24; }

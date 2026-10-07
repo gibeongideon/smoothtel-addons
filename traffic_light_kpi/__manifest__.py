@@ -1,6 +1,6 @@
 {
     'name': 'KPI Traffic Light System',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.1.0',
     'summary': 'Real-time role-based KPI tracking with traffic light indicator',
     'description': """
         Monitors employee performance based on predefined KPIs assigned to

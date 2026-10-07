@@ -204,11 +204,11 @@
                                            invisible="kpi_code != 'operating_hours_compliance'"
                                            placeholder="e.g. x_issued_on"/>
                                 </group>
-                                <group>
-                                    <field name="operating_hour_start"
-                                           invisible="kpi_code != 'operating_hours_compliance'"/>
-                                    <field name="operating_hour_end"
-                                           invisible="kpi_code != 'operating_hours_compliance'"/>
+                                <group invisible="kpi_code not in ('operating_hours_compliance', 'custom_turnaround_compliance')">
+                                    <field name="operating_hour_start" widget="float_time"/>
+                                    <field name="operating_hour_end" widget="float_time"/>
+                                    <field name="exclude_weekends"
+                                           invisible="kpi_code != 'custom_turnaround_compliance'"/>
                                 </group>
                             </group>
                             <group string="Extra Filters">

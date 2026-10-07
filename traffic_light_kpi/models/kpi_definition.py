@@ -197,14 +197,20 @@ class KpiDefinition(models.Model):
         help='Datetime field checked against operating hours compliance.',
     )
     operating_hour_start = fields.Float(
-        string='Operating Hours Start',
-        default=10.0,
-        help='Start hour in local time, for example 10.0 for 10:00 AM.',
+        string='Working Hours Start',
+        default=7.5,
+        help='Start of the working day in local time, for example 7.5 for 7:30 AM. '
+             'Turnaround compliance only counts time inside working hours.',
     )
     operating_hour_end = fields.Float(
-        string='Operating Hours End',
-        default=16.5,
-        help='End hour in local time, for example 16.5 for 4:30 PM.',
+        string='Working Hours End',
+        default=17.0,
+        help='End of the working day in local time, for example 17.0 for 5:00 PM.',
+    )
+    exclude_weekends = fields.Boolean(
+        string='Exclude Weekends',
+        default=True,
+        help='For turnaround compliance, do not count Saturdays and Sundays as working time.',
     )
     trend_period_count = fields.Integer(
         string='Trend Periods',
@@ -569,14 +575,16 @@ class KpiDefinition(models.Model):
                 'data_source': 'custom',
                 'turnaround_window_value': 10,
                 'turnaround_window_unit': 'minute',
+                'operating_hour_start': 7.5,
+                'operating_hour_end': 17.0,
             },
             'operating_hours_compliance': {
                 'evaluation_scope': 'individual',
                 'measure_type': 'percentage',
                 'aggregation': 'percentage',
                 'data_source': 'custom',
-                'operating_hour_start': 10.0,
-                'operating_hour_end': 16.5,
+                'operating_hour_start': 7.5,
+                'operating_hour_end': 17.0,
             },
             'custom_count': {
                 'evaluation_scope': 'individual',
@@ -598,6 +606,14 @@ class KpiDefinition(models.Model):
         for rec in self:
             values = config_map.get(rec.kpi_code, {})
             rec.update(values)
+
+    @api.constrains('operating_hour_start', 'operating_hour_end')
+    def _check_working_hours(self):
+        for rec in self:
+            if not 0 <= rec.operating_hour_start < rec.operating_hour_end <= 24:
+                raise ValidationError(
+                    f"Working hours for KPI '{rec.name}' must be between 0 and 24, with start before end."
+                )
 
     @api.constrains('domain_filter')
     def _check_domain_filter(self):
@@ -682,6 +698,7 @@ class KpiDefinition(models.Model):
                 'compliance_time_field',
                 'operating_hour_start',
                 'operating_hour_end',
+                'exclude_weekends',
                 'evaluation_scope',
                 'team_member_job_ids',
                 'normalize_per_member',

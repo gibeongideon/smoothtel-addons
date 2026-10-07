@@ -1,14 +1,9 @@
 import logging
 from odoo import models, fields, api
 
-_logger = logging.getLogger(__name__)
+from .kpi_result import RATINGS, RATING_STATUS, STATUS_COLORS
 
-STATUS_COLORS = [
-    ('green', 'Green'),
-    ('yellow', 'Yellow'),
-    ('red', 'Red'),
-    ('grey', 'Not Evaluated'),
-]
+_logger = logging.getLogger(__name__)
 
 
 class KpiTrafficLight(models.Model):
@@ -30,8 +25,10 @@ class KpiTrafficLight(models.Model):
         store=True,
     )
     overall_percentage = fields.Float(string='Overall Score (%)', digits=(5, 1))
+    overall_rating = fields.Selection(RATINGS, string='Overall Rating')
     overall_status = fields.Selection(STATUS_COLORS, string='Overall Status', default='grey')
     kpi_count = fields.Integer(string='# KPIs')
+    blue_count = fields.Integer(string='# Blue')
     green_count = fields.Integer(string='# Green')
     yellow_count = fields.Integer(string='# Yellow')
     red_count = fields.Integer(string='# Red')
@@ -78,8 +75,10 @@ class KpiTrafficLight(models.Model):
         if not active_results:
             vals = {
                 'overall_percentage': 0.0,
+                'overall_rating': False,
                 'overall_status': 'grey',
                 'kpi_count': len(results),
+                'blue_count': 0,
                 'green_count': 0,
                 'yellow_count': 0,
                 'red_count': 0,
@@ -96,13 +95,15 @@ class KpiTrafficLight(models.Model):
         # Weighted average of currently evaluable KPIs only
         total_weight = 0.0
         weighted_sum = 0.0
-        green_count = yellow_count = red_count = 0
+        blue_count = green_count = yellow_count = red_count = 0
 
         for r in active_results:
             w = r.kpi_id.weight or 1.0
             total_weight += w
             weighted_sum += r.percentage * w
-            if r.status == 'green':
+            if r.status == 'blue':
+                blue_count += 1
+            elif r.status == 'green':
                 green_count += 1
             elif r.status == 'yellow':
                 yellow_count += 1
@@ -110,22 +111,14 @@ class KpiTrafficLight(models.Model):
                 red_count += 1
 
         overall_pct = (weighted_sum / total_weight) if total_weight else 0.0
-
-        company = user.company_id or self.env.company
-        yellow_threshold = company.kpi_yellow_threshold or 50.0
-        green_threshold = company.kpi_green_threshold or 80.0
-
-        if overall_pct >= green_threshold:
-            overall_status = 'green'
-        elif overall_pct >= yellow_threshold:
-            overall_status = 'yellow'
-        else:
-            overall_status = 'red'
+        overall_rating = KpiResult._percentage_to_rating(overall_pct, user.company_id or self.env.company)
 
         vals = {
             'overall_percentage': overall_pct,
-            'overall_status': overall_status,
+            'overall_rating': overall_rating,
+            'overall_status': RATING_STATUS[overall_rating],
             'kpi_count': len(active_results),
+            'blue_count': blue_count,
             'green_count': green_count,
             'yellow_count': yellow_count,
             'red_count': red_count,

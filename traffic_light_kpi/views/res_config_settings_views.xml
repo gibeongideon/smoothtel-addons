@@ -8,15 +8,22 @@
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
                 <app string="KPI Tracker" name="traffic_light_kpi" groups="traffic_light_kpi.group_kpi_admin">
-                    <block title="Traffic Light Thresholds">
-                        <setting string="Green Threshold" help="Minimum KPI progress percentage that should be considered green.">
+                    <block title="KPI Rating Thresholds">
+                        <setting string="5 – Outstanding (Blue)" help="Minimum achievement % of target. Study and replicate this success elsewhere.">
+                            <field name="kpi_outstanding_threshold"/>
+                        </setting>
+                        <setting string="4 – Exceeds Expectations (Green)" help="Minimum achievement % of target. Recognize and reward the team.">
+                            <field name="kpi_exceeds_threshold"/>
+                        </setting>
+                        <setting string="3 – Meets Expectations (Green)" help="Minimum achievement % of target. Maintain current operations.">
                             <field name="kpi_green_threshold"/>
                         </setting>
-                        <setting string="Yellow Threshold" help="Minimum KPI progress percentage that should be considered yellow. Lower values become red.">
+                        <setting string="2 – Needs Improvement (Yellow)" help="Minimum achievement % of target. Minor adjustments and coaching required. Lower values are rated 1 – Unacceptable (Red).">
                             <field name="kpi_yellow_threshold"/>
                         </setting>
                         <div class="text-muted mt-2">
-                            Example: Green = 80, Yellow = 50 means 80%+ is green, 50% to 79% is yellow, and below 50% is red.
+                            Example: 120 / 100 / 80 / 50 means 120%+ is Outstanding, 100–119% Exceeds, 80–99% Meets,
+                            50–79% Needs Improvement and below 50% Unacceptable. Compliance KPIs use compliance % divided by their target.
                         </div>
                     </block>
                 </app>

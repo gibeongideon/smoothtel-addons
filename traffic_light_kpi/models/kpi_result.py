@@ -1,7 +1,7 @@
 import ast
 import json
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from dateutil.relativedelta import relativedelta
 import pytz
 
@@ -12,17 +12,43 @@ from .domain_utils import sanitize_domain_for_model
 
 _logger = logging.getLogger(__name__)
 
+BLUE = 'blue'
 GREEN = 'green'
 YELLOW = 'yellow'
 RED = 'red'
 GREY = 'grey'
 
 STATUS_COLORS = [
+    (BLUE, 'Blue'),
     (GREEN, 'Green'),
     (YELLOW, 'Yellow'),
     (RED, 'Red'),
     (GREY, 'Not Evaluated'),
 ]
+
+RATINGS = [
+    ('1', 'Unacceptable'),
+    ('2', 'Needs Improvement'),
+    ('3', 'Meets Expectations'),
+    ('4', 'Exceeds Expectations'),
+    ('5', 'Outstanding'),
+]
+
+RATING_STATUS = {
+    '1': RED,
+    '2': YELLOW,
+    '3': GREEN,
+    '4': GREEN,
+    '5': BLUE,
+}
+
+RATING_ACTIONS = {
+    '1': 'Immediate turnaround plan needed.',
+    '2': 'Minor adjustments and coaching required.',
+    '3': 'Maintain current operations.',
+    '4': 'Recognize and reward the team.',
+    '5': 'Study and replicate this success elsewhere.',
+}
 
 
 def _get_period_bounds(period, reference_date=None):
@@ -90,6 +116,7 @@ class KpiResult(models.Model):
     target_value = fields.Float(string='Target', digits=(16, 2))
     actual_value = fields.Float(string='Actual', digits=(16, 2))
     percentage = fields.Float(string='Progress (%)', digits=(5, 1))
+    rating = fields.Selection(RATINGS, string='Rating')
     status = fields.Selection(STATUS_COLORS, string='Status', default=GREY)
     data_point_count = fields.Integer(string='Data Points')
 
@@ -208,15 +235,16 @@ class KpiResult(models.Model):
         data_point_count = self._get_data_point_count(user, kpi, period_start, period_end)
 
         if self._is_turnaround_kpi(kpi):
-            pct, status = self._compute_turnaround_score(actual, target, data_point_count, user.company_id)
+            pct, rating = self._compute_turnaround_score(actual, target, data_point_count, user.company_id)
         else:
             if target and target > 0:
                 pct = min((actual / target) * 100.0, 999.9)
             else:
                 pct = 0.0
-            status = self._percentage_to_status(pct, user.company_id)
+            rating = self._percentage_to_rating(pct, user.company_id)
+        status = RATING_STATUS.get(rating, GREY)
 
-        insight = self._build_insight(kpi, actual, target, pct, status, data_point_count=data_point_count)
+        insight = self._build_insight(kpi, actual, target, pct, rating, data_point_count=data_point_count)
 
         existing = False
         if existing_map is not None:
@@ -232,6 +260,7 @@ class KpiResult(models.Model):
             'target_value': target,
             'actual_value': actual,
             'percentage': pct,
+            'rating': rating,
             'status': status,
             'data_point_count': data_point_count,
             'insight_text': insight,
@@ -252,10 +281,14 @@ class KpiResult(models.Model):
                 existing_map[(kpi.id, period_start)] = existing
 
     def _get_thresholds(self, company=None):
+        """Return the minimum achievement % for ratings 2, 3, 4 and 5."""
         company = company or self.env.company
-        green = company.kpi_green_threshold or 80.0
-        yellow = company.kpi_yellow_threshold or 50.0
-        return yellow, green
+        return (
+            company.kpi_yellow_threshold or 50.0,
+            company.kpi_green_threshold or 80.0,
+            company.kpi_exceeds_threshold or 100.0,
+            company.kpi_outstanding_threshold or 120.0,
+        )
 
     def _get_scope_users(self, user, kpi):
         if kpi.evaluation_scope != 'team':
@@ -311,13 +344,17 @@ class KpiResult(models.Model):
                 sheet.submitted_on = sheet.create_date
             ICP.set_param('traffic_light_kpi.expense_history_backfilled', '1')
 
-    def _percentage_to_status(self, pct, company=None):
-        yellow, green = self._get_thresholds(company)
-        if pct >= green:
-            return GREEN
-        if pct >= yellow:
-            return YELLOW
-        return RED
+    def _percentage_to_rating(self, pct, company=None):
+        needs_improvement, meets, exceeds, outstanding = self._get_thresholds(company)
+        if pct >= outstanding:
+            return '5'
+        if pct >= exceeds:
+            return '4'
+        if pct >= meets:
+            return '3'
+        if pct >= needs_improvement:
+            return '2'
+        return '1'
 
     def _is_turnaround_kpi(self, kpi):
         return self._get_handler_key(kpi) in {
@@ -331,17 +368,13 @@ class KpiResult(models.Model):
         }
 
     def _compute_turnaround_score(self, actual, target, data_point_count, company=None):
+        """Return (compliance %, rating). Rating is based on compliance vs target."""
         if not data_point_count:
-            return 0.0, GREY
+            return 0.0, False
 
         compliance_pct = max(0.0, min(actual, 100.0))
-        if target and target > 0:
-            if compliance_pct >= target:
-                return compliance_pct, GREEN
-            if compliance_pct >= (target * 0.8):
-                return compliance_pct, YELLOW
-            return compliance_pct, RED
-        return compliance_pct, self._percentage_to_status(compliance_pct, company)
+        achievement = (compliance_pct / target) * 100.0 if target and target > 0 else compliance_pct
+        return compliance_pct, self._percentage_to_rating(achievement, company)
 
     def _get_data_point_count(self, user, kpi, start, end):
         handler_key = self._get_handler_key(kpi)
@@ -1120,6 +1153,7 @@ class KpiResult(models.Model):
             end_field=kpi.turnaround_end_field or kpi.custom_date_field or kpi.source_date_field,
             window_value=self._get_window_value(kpi, fallback=10),
             window_unit=self._get_window_unit(kpi, fallback='minute'),
+            working_hours=self._get_working_hours(user, kpi),
         )
 
     def _src_operating_hours_compliance(self, user, kpi, start, end, extra):
@@ -1132,6 +1166,41 @@ class KpiResult(models.Model):
             kpi.operating_hour_start,
             kpi.operating_hour_end,
         )
+
+    def _get_user_timezone(self, user):
+        return pytz.timezone(user.tz or self.env.company.partner_id.tz or 'UTC')
+
+    def _get_working_hours(self, user, kpi):
+        return {
+            'timezone': self._get_user_timezone(user),
+            'hour_start': kpi.operating_hour_start,
+            'hour_end': kpi.operating_hour_end,
+            'exclude_weekends': kpi.exclude_weekends,
+        }
+
+    def _to_local_datetime(self, value, timezone):
+        if isinstance(value, date) and not isinstance(value, datetime):
+            value = datetime.combine(value, datetime.min.time())
+        if value.tzinfo is None:
+            value = pytz.UTC.localize(value)
+        return value.astimezone(timezone)
+
+    def _working_seconds_between(self, start_dt, end_dt, timezone, hour_start, hour_end, exclude_weekends):
+        """Seconds between start_dt and end_dt that fall inside daily working hours."""
+        start_local = self._to_local_datetime(start_dt, timezone)
+        end_local = self._to_local_datetime(end_dt, timezone)
+        total = 0.0
+        day = start_local.date()
+        while day <= end_local.date():
+            if not (exclude_weekends and day.weekday() >= 5):
+                midnight = datetime.combine(day, time())
+                day_start = timezone.localize(midnight + timedelta(hours=hour_start))
+                day_end = timezone.localize(midnight + timedelta(hours=hour_end))
+                overlap = (min(end_local, day_end) - max(start_local, day_start)).total_seconds()
+                if overlap > 0:
+                    total += overlap
+            day += timedelta(days=1)
+        return total
 
     def _get_approval_decisions(self, user, kpi, start, end, extra):
         Model, domain = self._get_model_and_domain(user, kpi, start, end, extra)
@@ -1160,7 +1229,9 @@ class KpiResult(models.Model):
     def _get_window_unit(self, kpi, fallback='day'):
         return kpi.turnaround_window_unit or fallback
 
-    def _is_within_window(self, start_value, end_value, window_value, window_unit):
+    def _is_within_window(self, start_value, end_value, window_value, window_unit, working_hours=None):
+        """Check end - start <= window. With working_hours, only working time counts
+        and a 'day' equals one working day (e.g. 07:30-17:00 = 9.5 hours)."""
         if not start_value or not end_value:
             return False
 
@@ -1183,10 +1254,14 @@ class KpiResult(models.Model):
             'hour': 3600.0,
             'day': 86400.0,
         }
+        if working_hours:
+            delta_seconds = self._working_seconds_between(start_dt, end_dt, **working_hours)
+            unit_map['day'] = max(working_hours['hour_end'] - working_hours['hour_start'], 0.0) * 3600.0
         limit_seconds = float(window_value or 0) * unit_map.get(window_unit or 'day', 86400.0)
         return delta_seconds <= limit_seconds if limit_seconds > 0 else False
 
-    def _compute_within_window_percentage(self, records, start_field, end_field, window_value, window_unit):
+    def _compute_within_window_percentage(self, records, start_field, end_field, window_value, window_unit,
+                                          working_hours=None):
         total = len(records)
         if not total:
             return 0.0
@@ -1195,7 +1270,7 @@ class KpiResult(models.Model):
         for record in records:
             start_value = self._get_nested_value(record, start_field)
             end_value = self._get_nested_value(record, end_field)
-            if self._is_within_window(start_value, end_value, window_value, window_unit):
+            if self._is_within_window(start_value, end_value, window_value, window_unit, working_hours):
                 within_window += 1
 
         return round((within_window / total) * 100.0, 2)
@@ -1205,18 +1280,13 @@ class KpiResult(models.Model):
         if not total or not field_path:
             return 0.0
 
-        timezone_name = user.tz or self.env.company.partner_id.tz or 'UTC'
-        timezone = pytz.timezone(timezone_name)
+        timezone = self._get_user_timezone(user)
         compliant = 0
         for record in records:
             value = self._get_nested_value(record, field_path)
             if not value:
                 continue
-            if isinstance(value, date) and not isinstance(value, datetime):
-                value = datetime.combine(value, datetime.min.time())
-            if value.tzinfo is None:
-                value = pytz.UTC.localize(value)
-            local_value = value.astimezone(timezone)
+            local_value = self._to_local_datetime(value, timezone)
             local_hour = local_value.hour + (local_value.minute / 60.0) + (local_value.second / 3600.0)
             if hour_start <= local_hour <= hour_end:
                 compliant += 1
@@ -1235,7 +1305,7 @@ class KpiResult(models.Model):
     # Insight text generator
     # ------------------------------------------------------------------
 
-    def _build_insight(self, kpi, actual, target, pct, status, data_point_count=0):
+    def _build_insight(self, kpi, actual, target, pct, rating, data_point_count=0):
         unit = {'count': '', 'percentage': '%', 'amount': ''}.get(kpi.measure_type, '')
         period_label = {'daily': 'today', 'weekly': 'this week', 'monthly': 'this month', 'yearly': 'this year'}.get(kpi.period, 'this period')
         scope_label = 'team' if kpi.evaluation_scope == 'team' else 'your'
@@ -1243,18 +1313,12 @@ class KpiResult(models.Model):
         if self._is_turnaround_kpi(kpi) and not data_point_count:
             return f"No records to evaluate for {kpi.name} {period_label}."
 
+        verdict = f"{dict(RATINGS).get(rating)} – {RATING_ACTIONS.get(rating)}"
         if self._is_turnaround_kpi(kpi):
-            if status == GREEN:
-                return f"{kpi.name}: {actual:.0f}% met the window for {period_label}."
-            if status == YELLOW:
-                return f"{kpi.name}: {actual:.0f}% met the window for {period_label}, slightly below target."
-            return f"{kpi.name}: only {actual:.0f}% met the window for {period_label}."
-
-        if status == GREEN:
-            return f"Great! {scope_label.capitalize()} {kpi.name} reached {pct:.0f}% of target for {period_label}."
-        if status == YELLOW:
-            return f"{scope_label.capitalize()} {kpi.name} is at {pct:.0f}% of target for {period_label}."
-        return f"Below target: {actual:.0f}{unit} vs {target:.0f}{unit} for {kpi.name} {period_label}."
+            return f"{kpi.name}: {actual:.0f}% met the window for {period_label}. {verdict}"
+        if rating == '1':
+            return f"Below target: {actual:.0f}{unit} vs {target:.0f}{unit} for {kpi.name} {period_label}. {verdict}"
+        return f"{scope_label.capitalize()} {kpi.name} is at {pct:.0f}% of target for {period_label}. {verdict}"
 
     def _get_trend_results(self, result, limit=None):
         limit = limit or result.kpi_id.trend_period_count or 6
@@ -1299,6 +1363,7 @@ class KpiResult(models.Model):
                 'target': r.target_value,
                 'actual': r.actual_value,
                 'percentage': r.percentage,
+                'rating': r.rating,
                 'status': r.status,
                 'insight': r.insight_text or '',
                 'last_updated': r.last_updated.isoformat() if r.last_updated else '',
@@ -1315,6 +1380,7 @@ class KpiResult(models.Model):
 
         return {
             'overall_status': overall_status,
+            'overall_rating': traffic.overall_rating if traffic else False,
             'overall_percentage': overall_pct,
             'kpis': kpi_list,
         }

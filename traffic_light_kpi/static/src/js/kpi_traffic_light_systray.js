@@ -7,16 +7,25 @@ import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 
 const STATUS_LABELS = {
+    blue: "Outstanding",
     green: "Performing Well",
     yellow: "Moderate Performance",
     red: "Needs Attention",
     grey: "Not Evaluated",
 };
 
+const RATING_LABELS = {
+    1: "1 – Unacceptable",
+    2: "2 – Needs Improvement",
+    3: "3 – Meets Expectations",
+    4: "4 – Exceeds Expectations",
+    5: "5 – Outstanding",
+};
+
 /**
  * KPI Traffic Light Systray Component
  *
- * Displays a coloured dot (Green/Yellow/Red) in the top navigation bar.
+ * Displays a coloured dot (Blue/Green/Yellow/Red) in the top navigation bar.
  * Red and Yellow blink via CSS animation.
  * Clicking opens a popup panel with KPI details.
  */
@@ -31,6 +40,7 @@ class KpiTrafficLightSystray extends Component {
 
         this.state = useState({
             status: "grey",
+            rating: false,
             overall_percentage: 0,
             kpis: [],
             loading: true,
@@ -68,6 +78,7 @@ class KpiTrafficLightSystray extends Component {
                 {}
             );
             this.state.status = result.overall_status || "grey";
+            this.state.rating = result.overall_rating || false;
             this.state.overall_percentage = result.overall_percentage || 0;
             this.state.kpis = result.kpis || [];
             this.state.loading = false;
@@ -79,7 +90,7 @@ class KpiTrafficLightSystray extends Component {
     }
 
     get statusLabel() {
-        return STATUS_LABELS[this.state.status] || "Unknown";
+        return RATING_LABELS[this.state.rating] || STATUS_LABELS[this.state.status] || "Unknown";
     }
 
     async openDashboard() {
